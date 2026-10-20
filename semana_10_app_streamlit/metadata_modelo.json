@@ -1,0 +1,40 @@
+{
+  "dados": "fintech_integrada.db fornecido; tabela despesas_clean",
+  "n_registros": 7,
+  "n_treino": 5,
+  "n_teste": 2,
+  "corte": "cronológico 80/20; sem embaralhamento",
+  "features": [
+    "categoria",
+    "media_gastos_anteriores",
+    "qtd_gastos_anteriores",
+    "tem_historico"
+  ],
+  "alvo": "valor",
+  "mae_modelo": 2540.184700762093,
+  "mae_baseline": 2467.55,
+  "baseline_media_treino": 121.62,
+  "outliers_no_teste": 1,
+  "versao_sklearn": "1.8.0",
+  "treino_final_em_todos_os_registros": true,
+  "aviso": "Modelo ilustrativo. Somente 7 registros e 2 observações de teste.",
+  "teste": [
+    {
+      "id": 6,
+      "data": "2026-09-09",
+      "valor_real": 5000.0,
+      "previsao": 27.41031644727616,
+      "categoria": "transporte",
+      "outlier": true
+    },
+    {
+      "id": 7,
+      "data": "2026-09-10",
+      "valor_real": 64.9,
+      "previsao": 172.67971797146257,
+      "categoria": "lazer",
+      "outlier": false
+    }
+  ],
+  "sha256_banco_original": "cc21e3e842b6371f7a98f92c8bafbcd44682ce4b27dc67197ff5da4e29da132a"
+}
