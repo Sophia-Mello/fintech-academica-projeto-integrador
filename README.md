@@ -8,8 +8,13 @@ Este repositório reúne as atividades das Semanas 1 a 10. A primeira atividade 
 
 A proposta da Fintech Acadêmica é organizar lançamentos, analisar os gastos por estudante e categoria e testar uma previsão para a próxima despesa. É um projeto acadêmico: não há movimentação bancária, receitas nem um modelo preparado para uso financeiro real.
 
-**Aplicação Streamlit:** https://fintech-academica-projeto-integrador.streamlit.app/  
-*Este é o endereço informado para o projeto. Antes da entrega, é preciso confirmar que a versão atual está publicada e abre corretamente.*
+## Aplicação Streamlit
+
+O aplicativo reúne indicadores financeiros, gráficos de despesas, auditoria dos dados e uma previsão experimental.
+
+[Acessar a aplicação no Streamlit Cloud](https://fintech-academica-projeto-integrador-final.streamlit.app/)
+
+*A captura da interface poderá ser incluída aqui depois de salvar a imagem real como `captura_app_streamlit.png` na raiz do repositório.*
 
 ## Arquivos e entregas
 
@@ -29,6 +34,75 @@ Cada atividade ficou em sua própria pasta. Os notebooks foram salvos com as sa�
 | 10 | [`semana_10_app_streamlit/`](semana_10_app_streamlit/) | Aplicativo, SQLite, modelo, dependências e testes |
 
 O arquivo [`modelo_despesas.joblib`](modelo_despesas.joblib) também está na raiz, como entregável da Semana 9. A cópia utilizada pelo aplicativo fica na pasta da Semana 10.
+
+## Resumo das atividades
+
+### Semana 1 — Gestão de estoque
+
+- **Organização dos dados:** montei um DataFrame no Pandas com 10 produtos de quatro categorias, incluindo preço e quantidade disponível.
+- **Valor e quantidade do estoque:** a soma chegou a **111 unidades** e **R$ 66.310,00** em mercadorias (`preço × quantidade`).
+- **Produtos e categorias:** o Notebook foi o item mais caro (R$ 3.500,00), enquanto o Mouse tinha a maior quantidade (25 unidades). Eletrônicos foi a categoria com maior valor em estoque (**R$ 46.950,00**).
+- **Estoque baixo:** usando o critério de menos de 10 unidades, identifiquei cinco produtos para acompanhamento: Notebook, Cadeira Gamer, Webcam, Impressora e Mesa de Escritório.
+
+### Semana 2 — Módulo de validação financeira
+
+- **Regras de entrada:** a função `validar_despesa` exige valor numérico, finito e maior que zero, data no formato `datetime` e categoria permitida.
+- **Testes:** executei nove casos: dois lançamentos válidos foram aceitos e sete entradas inválidas foram rejeitadas, incluindo valor negativo, zero, texto, infinito, data incorreta e campo ausente.
+- **Resultado:** apenas os dois registros aprovados entraram na lista de despesas. Nesta etapa, o armazenamento ainda é em memória.
+
+### Semana 3 — Programação Orientada a Objetos
+
+- **Estrutura:** dividi o código nas classes `Estudante`, `Despesa` e `GestorFinanceiro`. A classe `Despesa` usa atributos privados e métodos de acesso e alteração com validação.
+- **Consolidação:** associei três despesas a um estudante e obtive **R$ 138,30** no relatório financeiro.
+- **Consistência:** valores inválidos e categorias desconhecidas são rejeitados antes que uma despesa seja adicionada ao gestor.
+
+### Semana 4 — Subsistema de dados geográficos
+
+- **API do IBGE:** implementei duas etapas de consulta: obter os códigos das UFs pelo endpoint de estados e, depois, buscar os municípios pela sigla informada.
+- **Tratamento de erros:** as requisições usam `timeout`, validação da resposta e mensagens de erro. Os testes locais rejeitaram tanto uma sigla vazia quanto `XX`.
+- **Reprodução:** deixei a consulta online desativada por padrão (`CONSULTAR_API = False`) para o notebook funcionar sem internet. A partir da Semana 5, utilizo os **1.590 municípios que já constam no SQLite**.
+
+### Semana 5 — Persistência SQL
+
+- **Estrutura e integridade:** conferi as tabelas `estudantes`, `municipios`, `despesas` e `despesas_clean`. O SQLite retornou `integrity_check = ok`, sem violações de chaves estrangeiras.
+- **Dados de origem e tratados:** o banco contém três lançamentos em `despesas` (**R$ 425,40**) e sete em `despesas_clean` (**R$ 5.673,00**). Essas tabelas não devem ser somadas entre si.
+- **Consultas:** usei `JOIN` e `GROUP BY` para relacionar estudante, despesa e município. Na base tratada, os totais por UF foram **SP: R$ 5.373,50**, **MG: R$ 210,00** e **RJ: R$ 89,50**.
+- **Transações:** um teste com referência inválida provocou `rollback` em uma cópia temporária em memória, sem modificar o arquivo recebido.
+
+### Semana 6 — Data Wrangling
+
+- **Auditoria:** os sete registros de `despesas_clean` não apresentaram IDs duplicados nem valores numéricos nulos. Há uma categoria identificada como `nao_informado`.
+- **Limpeza:** implementei normalização, deduplicação e imputação pela mediana quando necessária. Como o banco recebido não traz o staging completo, não consigo contar quantas correções haviam ocorrido antes.
+- **Outlier pelo IQR:** encontrei **Q1 = R$ 82,25**, **Q3 = R$ 167,95** e limite superior de **R$ 296,50**. O lançamento de **R$ 5.000,00** foi sinalizado e mantido.
+- **Conciliação:** quatro das sete linhas tratadas não aparecem na tabela `despesas` de origem; o SQLite não traz o staging completo para reconstruir essas etapas.
+
+### Semana 7 — Estatística descritiva e EDA
+
+- **Medidas centrais:** as sete despesas somaram **R$ 5.673,00**, com média de **R$ 810,43** e mediana de **R$ 107,70**.
+- **Dispersão:** o desvio padrão amostral foi de **R$ 1.848,05**, e o coeficiente de variação chegou a **228,03%**, mostrando o efeito do gasto muito acima dos demais.
+- **Comparação sem outlier:** excluindo o lançamento atípico apenas do cálculo, a média das outras seis despesas cai para **R$ 112,17**. O registro permanece no banco.
+- **Composição:** transporte concentra **R$ 5.089,50 (89,71%)** do valor total. A amostra de sete despesas e três UFs não permite tirar conclusões robustas sobre correlações.
+
+### Semana 8 — Storytelling visual
+
+- **Indicadores do painel:** apresentei total de gastos, ticket médio, mediana e número de lançamentos, todos calculados com `despesas_clean`.
+- **Evolução temporal:** como os dados vão de **01/09 a 10/09/2026**, usei gastos diários e média móvel de três dias, sem interpretar o gráfico como tendência mensal.
+- **Principal destaque:** o pico de **R$ 5.000,00 em 09/09** representa **88,14%** dos gastos. A distribuição por categoria e o boxplot por estudante ajudam a visualizar essa concentração.
+- **Entrega:** exportei o painel em [`dashboard_semana_08.png`](dashboard_semana_08.png), também apresentado mais abaixo.
+
+### Semana 9 — Modelo preditivo
+
+- **Variáveis:** utilizei categoria com *One-Hot Encoding*, média dos gastos anteriores do estudante, quantidade anterior de registros e indicador de histórico. O `shift(1)` impede que a despesa prevista entre na própria média histórica.
+- **Divisão de dados:** fiz um corte cronológico de **cinco registros de treino e dois de teste**, sem embaralhamento.
+- **Avaliação:** a regressão linear apresentou **MAE de R$ 2.540,18**, contra **R$ 2.467,55** do baseline pela média do treino. O modelo não superou a referência simples.
+- **Interpretação e exportação:** um dos dois gastos de teste foi de R$ 5.000,00, com previsão de aproximadamente R$ 27,41. Ajustei o pipeline final com os sete registros e exportei `modelo_despesas.joblib` para demonstrar a integração, não para orientar despesas reais.
+
+### Semana 10 — Aplicação Streamlit
+
+- **Integração:** reuni a leitura do SQLite, os indicadores, o cadastro de despesas e a previsão experimental em uma aplicação com cinco páginas: visão geral, registro, previsão, qualidade e municípios.
+- **Preservação do banco:** novas despesas são registradas em uma cópia `fintech_operacional.db`, sem alterar o `fintech_integrada.db` que acompanha o trabalho.
+- **Testes:** executei a suíte do projeto: **24 testes passaram e um foi pulado** porque o Streamlit não está instalado neste ambiente. A interface ainda precisa ser conferida no aplicativo publicado.
+- **Limites:** a aplicação usa SQLite local, sem autenticação e sem garantia de persistência no Streamlit Community Cloud. O resultado do modelo continua sendo apenas experimental.
 
 ## Dados utilizados
 
@@ -69,9 +143,9 @@ Como os dados cobrem somente um mês, a análise de evolução da Semana 8 é **
 
 O dashboard reúne os indicadores, a evolução diária, as categorias de gasto e o boxplot por estudante. O arquivo PNG foi gerado a partir do mesmo SQLite usado nos notebooks.
 
-![Dashboard de gastos estudantis — Semana 8](semana_08_storytelling_visual/dashboard_semana_08.png)
+![Dashboard de gastos estudantis — Semana 8](dashboard_semana_08.png)
 
-[Ver ou baixar o dashboard em PNG](semana_08_storytelling_visual/dashboard_semana_08.png)
+[Ver ou baixar o dashboard em PNG](dashboard_semana_08.png)
 
 ## Modelo preditivo — Semana 9
 
